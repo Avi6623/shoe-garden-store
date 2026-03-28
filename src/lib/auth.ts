@@ -3,15 +3,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const isProduction = process.env.NODE_ENV === "production";
 const allowOpenSignup = process.env.ALLOW_OPEN_SIGNUP === "true";
 const enableAdminBootstrap = process.env.ENABLE_ADMIN_BOOTSTRAP === "true";
 const bootstrapAdminEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.toLowerCase().trim();
 const bootstrapAdminPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
-
-if (isProduction && !process.env.NEXTAUTH_SECRET) {
-  throw new Error("NEXTAUTH_SECRET is required in production.");
-}
 
 export const authOptions: NextAuthOptions = {
   providers: [
