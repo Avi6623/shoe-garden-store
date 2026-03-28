@@ -1,7 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { reserveInventory, releaseInventory } from "@/app/actions/reservation";
+import {
+  releaseAllInventory,
+  releaseInventory,
+  reserveInventory,
+  syncInventoryReservation,
+} from "@/app/actions/reservation";
 
 export interface CartItem {
   id: string; // product id
@@ -15,9 +20,9 @@ interface CartContextType {
   cartId: string;
   items: CartItem[];
   addToCart: (item: CartItem) => Promise<boolean>;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
+  removeFromCart: (id: string) => Promise<void>;
+  updateQuantity: (id: string, quantity: number) => Promise<boolean>;
+  clearCart: () => Promise<void>;
   cartTotal: number;
   cartCount: number;
 }
@@ -82,14 +87,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((currentItems) => currentItems.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
-    if (quantity < 1) return removeFromCart(id);
+  const updateQuantity = async (id: string, quantity: number) => {
+    if (quantity < 1) {
+      await removeFromCart(id);
+      return true;
+    }
+
+    const result = await syncInventoryReservation(cartId, id, quantity);
+    if (!result.success) {
+      alert("Failed to update quantity: " + result.error);
+      return false;
+    }
+
     setItems((currentItems) =>
       currentItems.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
+    return true;
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = async () => {
+    await releaseAllInventory(cartId);
+    setItems([]);
+  };
 
   const cartTotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);

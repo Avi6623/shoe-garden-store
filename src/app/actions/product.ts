@@ -58,6 +58,7 @@ export async function createProduct(formData: FormData) {
     revalidatePath("/products");
     revalidatePath("/");
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/products");
 
     return { success: true };
   } catch (error) {

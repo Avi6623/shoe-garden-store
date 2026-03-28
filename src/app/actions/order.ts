@@ -174,6 +174,8 @@ export async function createOrder(
 
     revalidatePath("/profile");
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/orders");
+    revalidatePath("/dashboard/products");
 
     return { success: true, orderId: order.id };
   } catch (error) {

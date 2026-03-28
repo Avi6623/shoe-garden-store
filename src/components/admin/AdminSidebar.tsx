@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut } from "lucide-react";
 
 export default function AdminSidebar() {
@@ -42,13 +43,14 @@ export default function AdminSidebar() {
         </nav>
       </div>
       <div className="mt-auto p-6">
-        <Link 
-          href="/" 
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-3 px-4 py-3 text-brand-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl font-medium transition-colors"
         >
           <LogOut size={20} />
           Exit Admin
-        </Link>
+        </button>
       </div>
     </aside>
   );

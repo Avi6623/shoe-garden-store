@@ -49,7 +49,7 @@ export default function CheckoutPage() {
 
     if (result.success) {
       setSuccess(true);
-      clearCart();
+      await clearCart();
       setTimeout(() => {
         router.push("/profile");
       }, 3000);
