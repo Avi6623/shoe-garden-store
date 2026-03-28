@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("USER") // "USER" or "ADMIN"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  original    Float?   // Optional original price before discount
+  discount    String?
+  tag         String?
+  category    String      @default("uncategorized")
+  material    String?
+  imageUrl    String?
+  images      String?     // JSON stringified array of URLsimage URLs
+  stock       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+  reservations CartReservation[]
+}
+
+model CartReservation {
+  id        String   @id @default(cuid())
+  cartId    String   // Identifier for the user's local cart session
+  productId String
+  quantity  Int      @default(1)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  total         Float
+  paymentMethod String      @default("COD") // COD, ONLINE
+  status        String      @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
+  address       String?     // Shipping Dispatch Address
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}

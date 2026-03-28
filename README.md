@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shoe Garden
 
-## Getting Started
+Production-ready Next.js 16 ecommerce storefront with:
+- Customer shopping flow (browse, cart, checkout, profile)
+- Inventory reservation system
+- Admin dashboard (products, orders, settings)
+- Credentials-based authentication via NextAuth
 
-First, run the development server:
+## Quick Start
 
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create env file:
+```bash
+cp .env.example .env
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Generate Prisma client and run migrations:
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. (Optional) Seed sample products:
+```bash
+npx ts-node prisma/seed.ts
+```
 
-## Learn More
+5. Start dev server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Production Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use strong secrets and real production values:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `DATABASE_URL` (production database connection string)
+- `NEXTAUTH_SECRET` (minimum 32+ random chars)
+- `NEXTAUTH_URL` (your public app URL, e.g. `https://shoegarden.com`)
+- `ALLOW_OPEN_SIGNUP` (`false` for client deployments unless explicitly needed)
+- `ENABLE_ADMIN_BOOTSTRAP` (`false` after initial setup)
+- `ADMIN_BOOTSTRAP_EMAIL` (only used when bootstrap is enabled)
+- `ADMIN_BOOTSTRAP_PASSWORD` (only used when bootstrap is enabled)
 
-## Deploy on Vercel
+## Deployment Checklist
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Run before handing to client:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
+
+Then confirm:
+- Env values are set for production domain and database
+- `ALLOW_OPEN_SIGNUP=false` unless requested by client
+- `ENABLE_ADMIN_BOOTSTRAP=false` after admin account creation
+- Admin credentials are not hardcoded in codebase
+- Backups configured for production database
+- HTTPS enabled at hosting layer
+
