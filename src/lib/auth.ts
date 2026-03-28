@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
@@ -7,6 +8,19 @@ const allowOpenSignup = process.env.ALLOW_OPEN_SIGNUP === "true";
 const enableAdminBootstrap = process.env.ENABLE_ADMIN_BOOTSTRAP === "true";
 const bootstrapAdminEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.toLowerCase().trim();
 const bootstrapAdminPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
+const fallbackAuthSecret = createHash("sha256")
+  .update(
+    [
+      process.env.NEXTAUTH_URL,
+      process.env.VERCEL_URL,
+      process.env.VERCEL_PROJECT_PRODUCTION_URL,
+      "shoe-garden-store",
+    ]
+      .filter(Boolean)
+      .join("|")
+  )
+  .digest("hex");
+const authSecret = process.env.NEXTAUTH_SECRET || fallbackAuthSecret;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -95,5 +109,5 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 60 * 60 * 24 * 7,
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
 };
